@@ -22,6 +22,12 @@ spec:
     # When this is deployed a suffix is added in the format "-<os><os version>-<cpu arch>" for e.g.: "-ubuntu22.04-amd64".
     version: 25.01-0.6.0.0-0
 
+    env:
+    - name: DEBUG_SLEEP_SEC_ON_EXIT
+      value: "10000000"
+    - name: ENTRYPOINT_DEBUG
+      value: "true"
+
     forcePrecompiled: false
     upgradePolicy:
       autoUpgrade: true
