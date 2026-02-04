@@ -36,7 +36,8 @@ RUN apt-get -qq update && \
     librdmacm-dev \
     rdmacm-utils \
     infiniband-diags \
-    ibverbs-utils && \
+    ibverbs-utils \
+    libnccl-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
