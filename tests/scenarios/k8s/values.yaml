@@ -1,6 +1,6 @@
 mpiJob:
   enabled: false
-  image: ghcr.io/azure/aks-rdma-infiniband/nccl-tests
+  image: quay.io/surajd/nccl-tests
   numberOfProcesses: 0
 
 job:
@@ -18,6 +18,13 @@ job:
 #   capabilities:
 #     add:
 #     - IPC_LOCK
+
+securityContext:
+  privileged: true
+  capabilities:
+    add:
+    - IPC_LOCK
+    - SYS_PTRACE
 
 ipoib: false
 

@@ -1,4 +1,4 @@
-FROM nvidia/cuda:13.1.1-devel-ubuntu24.04 as base
+FROM nvidia/cuda:13.1.1-devel-ubuntu24.04 AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qq update && \
@@ -37,15 +37,15 @@ RUN apt-get -qq update && \
     rdmacm-utils \
     infiniband-diags \
     ibverbs-utils \
-    libnccl-dev && \
+    libnccl-dev \
+    libboost-program-options-dev \
+    cmake && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # NCCL Tests: https://github.com/NVIDIA/nccl-tests
-# This commit corresponds to the release v2.17.6
-# Works with NCCL 2.25.1+cuda12.8 (included in the CUDA 12.8.1 base image)
-ENV NCCL_TESTS_COMMIT_SHA=da0b547
-# Support for Hopper (H100/H200) - compute_90 and Blackwell (GB200/GB300) - compute_100
+# This commit corresponds to the release v2.17.9
+ENV NCCL_TESTS_COMMIT_SHA=2535da8
 ENV CUDA12_GENCODE='-gencode=arch=compute_90,code=sm_90 -gencode=arch=compute_100,code=sm_100'
 ENV CUDA12_PTX='-gencode=arch=compute_90,code=compute_90 -gencode=arch=compute_100,code=compute_100'
 WORKDIR /opt/nccl-tests
@@ -54,6 +54,13 @@ RUN wget -q -O - https://github.com/NVIDIA/nccl-tests/archive/${NCCL_TESTS_COMMI
     export CXX=mpic++ && \
     make -j20 MPI=1 MPI_HOME=/usr/include/openmpi NVCC_GENCODE="$CUDA12_GENCODE $CUDA12_PTX" && \
     ln -s /opt/nccl-tests /opt/nccl_tests
+
+# NVBandwidth: https://github.com/NVIDIA/nvbandwidth
+ENV NVBANDWIDTH_VERSION=v0.8
+WORKDIR /opt/nvbandwidth
+RUN wget -q -O - https://github.com/NVIDIA/nvbandwidth/archive/refs/tags/${NVBANDWIDTH_VERSION}.tar.gz | tar --strip-components=1 -xzf - && \
+    cmake -DMULTINODE=1 . && \
+    make -j
 
 RUN ldconfig
 
