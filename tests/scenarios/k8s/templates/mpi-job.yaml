@@ -105,6 +105,11 @@ spec:
               items:
               - key: topo.xml
                 path: topo.xml
+          {{- if .Values.dranet.enabled }}
+          resourceClaims:
+          - name: rdma-nic
+            resourceClaimTemplateName: rdma-nic-claim-template
+          {{- end }}
           affinity:
             podAntiAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:

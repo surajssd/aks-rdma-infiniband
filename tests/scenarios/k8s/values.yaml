@@ -21,6 +21,10 @@ job:
 
 ipoib: false
 
+dranet:
+  enabled: false
+  # nic: 8
+
 # --------------------------------------------------------------------
 # Below this point it is gonna be constant for all the tests
 ncclEnvVars:

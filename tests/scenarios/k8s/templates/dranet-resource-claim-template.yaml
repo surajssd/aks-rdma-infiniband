@@ -1,0 +1,14 @@
+{{- if .Values.dranet.enabled }}
+apiVersion: resource.k8s.io/v1
+kind: ResourceClaimTemplate
+metadata:
+  name: rdma-nic-claim-template
+spec:
+  spec:
+    devices:
+      requests:
+      - name: rdma-nic
+        exactly:
+          deviceClassName: dranet-rdma
+          count: {{ .Values.dranet.nic }}
+{{- end }}
