@@ -257,6 +257,30 @@ function rdma_shared_device_plugin_gpu() {
     $HELM_UNINSTALL_CMD
 }
 
+function dranet_gpu() {
+    find_gpu_per_node
+    mpi_job_number_of_processes
+
+    local test_flags=(
+        --set "securityContext.capabilities.add={IPC_LOCK}"
+        --set "resources.nvidia\.com/gpu=${GPU_PER_NODE_NUMBER}"
+        --set "dranet.enabled=true"
+        --set "dranet.nic=${GPU_PER_NODE_NUMBER}"
+        --set "ncclEnvVars.NCCL_SOCKET_IFNAME=eth0"
+    )
+
+    if [[ ${subcmd} != "mpijob" ]]; then
+        echo "❌ dranet_gpu currently only supports mpijob"
+    else
+        $HELM_INSTALL_CMD ${TEST_DEBUG_FLAGS[@]+"${TEST_DEBUG_FLAGS[@]}"} \
+            "${test_flags[@]}" \
+            --set mpiJob.enabled=true \
+            --set mpiJob.numberOfProcesses="${NUMBER_OF_PROCESSES}"
+
+        fail_on_job_failure "app=nccl-tests" "default"
+    fi
+}
+
 cmd="${1:-}"
 case $cmd in
 root-nic-policy | root_nic_policy)
@@ -282,6 +306,9 @@ rdma-shared-device-plugin | rdma_shared_device_plugin)
     ;;
 rdma-shared-device-plugin-gpu | rdma_shared_device_plugin_gpu)
     DEPLOY_METHOD_FUNC="rdma_shared_device_plugin_gpu"
+    ;;
+dranet-gpu | dranet_gpu)
+    DEPLOY_METHOD_FUNC="dranet_gpu"
     ;;
 *)
     echo "Unknown command: ${cmd}"
